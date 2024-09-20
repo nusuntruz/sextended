@@ -231,7 +231,7 @@ Color:
 - \ :unpack()
 
 HSV:
-- HSV(360, 1, 100)
+- HSV(360, 1.0, 1.0)
 - \ :toRGB()
 
 HEX:
