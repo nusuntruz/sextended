@@ -101,6 +101,22 @@ NetChannel:
 - m_nInReliableState
 - m_nChokedPackets
 
+NetGraph:
+- m_FrameRate
+- m_AvgLatency
+- m_AvgPacketLoss
+- m_AvgPacketChoke
+- m_IncomingSequence
+- m_OutgoingSequence
+- m_UpdateWindowSize
+- m_IncomingData
+- m_OutgoingData
+- m_AvgPacketIn
+- m_AvgPacketOut
+- m_hFontProportional
+- m_hFont
+- m_nNetGraphHeight
+
 Entity:
 - GetLocalPlayer() -- as index
 - Get(m_iIndex)
