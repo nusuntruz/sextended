@@ -194,6 +194,42 @@ Render:
 - InitTexture(data, w, h)
 - Image(datatbl, pos, dim, alpha)
 
+vec2_t, vec3_t:
+- vec2_t(x, y, z) or vec2_t({x, y, z}) -- Third parameter for world to screen
+- vec3_t(x, y, z) or vec3_t({x, y, z})
+- \ :ffi()
+- \ :Add(vec or number)
+- \ :Sub(vec or number)
+- \ :Multiply(vec or number)
+- \ :Fraction(vec or number)
+- \ :Dot(vec)
+- \ :Length()
+- \ :Length2d()
+- \ :Distance(number)
+- \ :Angle(vec)
+- \ :Cross(vec3d)
+- \ :unpack()
+- \ :Hovered(vec2d)
+- \ :Drag(vec2d, m_szName, m_bShouldBlockDragging)
+
+Color:
+- Color(r, g, b, a)
+- Color() or Color(255, 255, 255) or Color(255, 255, 255, 255) -- White
+- \ :toHSV()
+- \ :toHEX()
+- \ :SetAlpha(alpha)
+- \ :Print(spacing)
+- \ :Lerp(new_color, fraction)
+- \ :unpack()
+
+HSV:
+- HSV(360, 1, 100)
+- \ :toRGB()
+
+HEX:
+- HEX("#FFFFFFFF")
+- \ :toRGB()
+
 Callbacks:
 - CreateMove(func(CUserCMD))
 - Draw(func) -- surface
