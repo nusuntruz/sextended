@@ -65,8 +65,17 @@ Engine:
 - Execute(client_cmd_execute_command)
 - IsPaused()
 - IsHLTV()
-- GetDemoPlaybackParameters()
 - GetScreenAspectRatio(viewportWidth, viewportHeight)
+- GetDemoPlaybackParameters()
+- \ .m_uiCaseID
+- \ .m_uiHeaderPrefixLength
+- \ .m_uiLockFirstPersonAccountID
+- \ .m_bAnonymousPlayerIdentity
+- \ .m_numRoundSkip
+- \ .m_numRoundStop
+- \ .m_bSkipWarmup
+- \ .m_bPlayingLiveRemoteBroadcast
+- \ .m_uiLiveMatchID
 - GetPlayerInfo(m_iIndex)
 - \ .m_uDataMap 
 - \ .m_iSteamID64 
