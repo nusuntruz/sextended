@@ -725,8 +725,8 @@ local ClientState = (function()
 	        bool m_bInSimulation;
 	        char pad_4C9D [ 3 ];
 	        int m_iOldTickcount;
-	        float m_fTickRemainder;
-	        float m_fFrameTime;
+	        float m_flTickRemainder;
+	        float m_flFrameTime;
 	        int m_iLastOutGoingConnect;
 	        int m_iChockedCommands;
 	        int m_iLastCommandAck;
@@ -736,13 +736,76 @@ local ClientState = (function()
 	        char pad_4CCD [ 76 ];
 	        vec3_t m_vecViewAngles;
 	        int pads [ 54 ];
-	        void* events;
+	        void* m_nEvents;
         } CClientState;
     ]]
 
     Signatures.CClientStateAddress = Utils.FindSignature("engine.dll", "A1 ? ? ? ? 33 D2 6A 00 6A 00 33 C9 89 B0", 1)
 
     return ffi.cast("CClientState***", Signatures.CClientStateAddress)[0][0][0]
+end)()
+
+local NetGraph = (function ()
+    ffi.cdef[[
+        typedef struct
+        {
+            void* vtable;
+            unsigned char gap4 [ 72 ];
+            unsigned long dword4C;
+            unsigned char gap50 [ 20 ];
+            unsigned short word64;
+            unsigned char gap66 [ 42 ];
+            unsigned long dword90;
+            unsigned char gap94 [ 16 ];
+            unsigned long dwordA4;
+            unsigned char gapA8 [ 244 ];
+            unsigned short word19C;
+            unsigned char gap19E [ 3 ];
+            unsigned char byte1A1;
+            unsigned short word1A2;
+            unsigned char byte1A4;
+            unsigned char gap1A5 [ 19 ];
+            char char1B8;
+            unsigned char gap1B9 [ 77823 ];
+            float m_FrameRate;
+            float m_AvgLatency;
+            float m_AvgPacketLoss;
+            float m_AvgPacketChoke;
+            int m_IncomingSequence;
+            int m_OutgoingSequence;
+            unsigned long m_UpdateWindowSize;
+            float m_IncomingData;
+            float m_OutgoingData;
+            float m_AvgPacketIn;
+            float m_AvgPacketOut;
+            unsigned char gap131E4 [ 16 ];
+            int dword131F4;
+            unsigned long dword131F8;
+            unsigned long dword131FC;
+            unsigned long dword13200;
+            unsigned long dword13204;
+            unsigned long m_hFontProportional;
+            unsigned long m_hFont;
+            unsigned long dword13210;
+            void* cl_updaterate;
+            void* cl_cmdrate;
+            unsigned long dword1321C;
+            unsigned long dword13220;
+            unsigned long dword13224;
+            unsigned long dword13228;
+            unsigned long dword1322C;
+            unsigned long dword13230;
+            unsigned long dword13234;
+            unsigned long m_nNetGraphHeight;
+            unsigned long dword1323C;
+            unsigned long dword13240;
+            unsigned long dword13244;
+            unsigned long dword13248;
+        } CNetGraphPanel;
+    ]]
+    local pNetGraphPanelAddr = Utils.FindSignature("client.dll", "89 1D ? ? ? ? 8B C3 5B 8B E5 5D C2 04 00", 2)
+
+    return ffi.cast("CNetGraphPanel***", pNetGraphPanelAddr)[0][0]
 end)()
 
 local Engine = (function ()
@@ -2079,6 +2142,7 @@ return {
     Clipboard = Clipboard,
     Hooks = Hooks,
     ClientState = ClientState,
+    NetGraph = NetGraph,
     Engine = Engine,
     NetChannel = NetChannel,
     --NetChannelInfo = NetChannelInfo, -- Crashes ATM
