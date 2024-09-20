@@ -23,7 +23,7 @@ Clipboard:
 
 Hooks:
 - Create(m_nHookAddress)
- .Hook(cast, func, method)
+\n .Hook(cast, func, method)
  .unHook(method)
  .unHookAll()
 
