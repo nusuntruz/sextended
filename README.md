@@ -23,9 +23,9 @@ Clipboard:
 
 Hooks:
 - Create(m_nHookAddress)
-- \ .Hook(cast, func, method)
-- \ .unHook(method)
-- \ .unHookAll()
+-\ .Hook(cast, func, method)
+-\ .unHook(method)
+-\ .unHookAll()
 
 ClientState:
 - m_nChallengeNr
@@ -60,19 +60,19 @@ Engine:
 - IsConnected()
 - GetScreenSize()
 - GetPlayerInfo(m_iIndex)
-\ .m_uDataMap
-\ .m_iSteamID64
-\ .m_iSteamIDLow
-\ .m_iSteamIDHigh
-\ .m_szName
-\ .m_iUserID
-\ .m_szGUID
-\ .m_uFriendID
-\ .m_szFriendName
-\ .m_bIsFakePlayer
-\ .m_bIsHLTV
-\ .m_uCustomFiles
-\ .m_uFilesDownloaded
+-\ .m_uDataMap 
+-\ .m_iSteamID64 
+-\ .m_iSteamIDLow 
+-\ .m_iSteamIDHigh 
+-\ .m_szName 
+-\ .m_iUserID 
+-\ .m_szGUID 
+-\ .m_uFriendID 
+-\ .m_szFriendName 
+-\ .m_bIsFakePlayer 
+-\ .m_bIsHLTV 
+-\ .m_uCustomFiles 
+-\ .m_uFilesDownloaded
 - GetPlayerByUserId(m_iUserID)
 - GetViewAngles()
 - SetViewAngles(vec3_t_Angles)
