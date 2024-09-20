@@ -100,6 +100,14 @@ Entity:
 \ :GetProp(typedef, m_hOffset, m_hPointer)
 \ :m_iHealth()
 \ :m_iTeamNum()
+- \ :m_nPoseParameters()
+- \ :m_bDormant()
+- \ :m_fFlags()
+- \ :m_vecVelocity()
+- \ :m_flVelocity()
+- \ :m_flSimulationTime()
+- \ :m_flOldSimulationTime()
+- \ :m_flLowerBodyYawTarget()
 - \ :m_nAnimationLayers()
 - \\ [1 -> 12] -- {LayerNumber}
 - \\\ .m_flAnimationTime
@@ -161,14 +169,6 @@ Entity:
 - \\ .m_flMinPitch
 - \\ .m_flMaxPitch
 - \\ .m_iAnimsetVersion
-- \ :m_nPoseParameters()
-- \ :m_bDormant()
-- \ :m_fFlags()
-- \ :m_vecVelocity()
-- \ :m_flVelocity()
-- \ :m_flSimulationTime()
-- \ :m_flOldSimulationTime()
-- \ :m_flLowerBodyYawTarget()
 
 Input:
 - IsKeyPressed(vKey)
