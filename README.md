@@ -176,6 +176,24 @@ Input:
 - GetCursorPosition()
 - GetScroll()
 
+Render:
+- Font(name, h, weight, flags, blur)
+- \ :Measure(text)
+- \ :Text(pos, clr, text, ...) -- Color(255, 255, 0), "next text", "another text"
+- MassCreateFont(name, h_min, h_max, weight_min, weight_max, flags)
+- Polygon(vertices, clipvertices, clr)
+- Polyline(vertices, clr)
+- SetClip(vec, size)
+- EndClip()
+- Line(pos1, pos2, clr)
+- FilledRect(pos, dim, clr, clr2, horizontal, rounding, flags)
+- Rect(pos, dim, clr, clr2, horizontal, rounding, flags)
+- Circle(pos, radius, color, start_angle, end_angle)
+- FilledCircle(pos, radius, color, start_angle, end_angle)
+- Circle3D(Position, flRadius, Color)
+- InitTexture(data, w, h)
+- Image(datatbl, pos, dim, alpha)
+
 Callbacks:
 - CreateMove(func(CUserCMD))
 - Draw(func) -- surface
