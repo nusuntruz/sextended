@@ -23,9 +23,9 @@ Clipboard:
 
 Hooks:
 - Create(m_nHookAddress)
-/ .Hook(cast, func, method)
-/ .unHook(method)
-/ .unHookAll()
+ .Hook(cast, func, method)
+ .unHook(method)
+ .unHookAll()
 
 ClientState:
 - m_nChallengeNr
