@@ -100,75 +100,75 @@ Entity:
 \ :GetProp(typedef, m_hOffset, m_hPointer)
 \ :m_iHealth()
 \ :m_iTeamNum()
-\ :m_nAnimationLayers()
-\\ [1 -> 12] -- {LayerNumber}
-\\\ .m_flAnimationTime
-\\\ .m_flFadeOutTime
-\\\ .m_iFlags
-\\\ .m_iActivity
-\\\ .m_iPriority
-\\\ .m_iOrder
-\\\ .m_iSequence
-\\\ .m_flPrevCycle
-\\\ .m_flWeight
-\\\ .m_flWeightDeltaRate
-\\\ .m_flPlaybackRate
-\\\ .m_flCycle
-\\\ .m_nOwner
-\\\ .m_iBits
-\ :m_nAnimationState()
-\\ .m_nEntity
-\\ .m_nActiveWeapon
-\\ .m_nLastActiveWeapon
-\\ .m_flLastUpdateTime
-\\ .m_iLastUpdateFrame
-\\ .m_flLastUpdateIncrement
-\\ .m_flEyeYaw
-\\ .m_flEyePitch
-\\ .m_flGoalFeetYaw
-\\ .m_flLastFeetYaw
-\\ .m_flMoveYaw
-\\ .m_flLastMoveYaw
-\\ .m_flLeanAmount
-\\ .m_flFeetCycle
-\\ .m_flMoveWeight
-\\ .m_flMoveWeightSmoothed
-\\ .m_flDuckAmount
-\\ .m_flHitGroundCycle
-\\ .m_flRecrouchWeight
-\\ .m_vecOrigin
-\\ .m_vecLastOrigin
-\\ .m_vecVelocity
-\\ .m_vecVelocityNormalized
-\\ .m_vecVelocityNormalizedNonZero
-\\ .m_flVelocityLenght2D
-\\ .m_flJumpFallVelocity
-\\ .m_flSpeedNormalized
-\\ .m_flRunningSpeed
-\\ .m_flDuckingSpeed
-\\ .m_flDurationMoving
-\\ .m_flDurationStill
-\\ .m_bOnGround
-\\ .m_bHitGroundAnimation
-\\ .m_flNextLowerBodyYawUpdateTime
-\\ .m_flDurationInAir
-\\ .m_flLeftGroundHeight
-\\ .m_flHitGroundWeight
-\\ .m_flWalkToRunTransition
-\\ .m_flAffectedFraction
-\\ .m_flMinBodyYaw
-\\ .m_flMaxBodyYaw
-\\ .m_flMinPitch
-\\ .m_flMaxPitch
-\\ .m_iAnimsetVersion
-\ :m_nPoseParameters()
-\ :m_bDormant()
-\ :m_fFlags()
-\ :m_vecVelocity()
-\ :m_flVelocity()
-\ :m_flSimulationTime()
-\ :m_flOldSimulationTime()
-\ :m_flLowerBodyYawTarget()
+- \ :m_nAnimationLayers()
+- \\ [1 -> 12] -- {LayerNumber}
+- \\\ .m_flAnimationTime
+- \\\ .m_flFadeOutTime
+- \\\ .m_iFlags
+- \\\ .m_iActivity
+- \\\ .m_iPriority
+- \\\ .m_iOrder
+- \\\ .m_iSequence
+- \\\ .m_flPrevCycle
+- \\\ .m_flWeight
+- \\\ .m_flWeightDeltaRate
+- \\\ .m_flPlaybackRate
+- \\\ .m_flCycle
+- \\\ .m_nOwner
+- \\\ .m_iBits
+- \ :m_nAnimationState()
+- \\ .m_nEntity
+- \\ .m_nActiveWeapon
+- \\ .m_nLastActiveWeapon
+- \\ .m_flLastUpdateTime
+- \\ .m_iLastUpdateFrame
+- \\ .m_flLastUpdateIncrement
+- \\ .m_flEyeYaw
+- \\ .m_flEyePitch
+- \\ .m_flGoalFeetYaw
+- \\ .m_flLastFeetYaw
+- \\ .m_flMoveYaw
+- \\ .m_flLastMoveYaw
+- \\ .m_flLeanAmount
+- \\ .m_flFeetCycle
+- \\ .m_flMoveWeight
+- \\ .m_flMoveWeightSmoothed
+- \\ .m_flDuckAmount
+- \\ .m_flHitGroundCycle
+- \\ .m_flRecrouchWeight
+- \\ .m_vecOrigin
+- \\ .m_vecLastOrigin
+- \\ .m_vecVelocity
+- \\ .m_vecVelocityNormalized
+- \\ .m_vecVelocityNormalizedNonZero
+- \\ .m_flVelocityLenght2D
+- \\ .m_flJumpFallVelocity
+- \\ .m_flSpeedNormalized
+- \\ .m_flRunningSpeed
+- \\ .m_flDuckingSpeed
+- \\ .m_flDurationMoving
+- \\ .m_flDurationStill
+- \\ .m_bOnGround
+- \\ .m_bHitGroundAnimation
+- \\ .m_flNextLowerBodyYawUpdateTime
+- \\ .m_flDurationInAir
+- \\ .m_flLeftGroundHeight
+- \\ .m_flHitGroundWeight
+- \\ .m_flWalkToRunTransition
+- \\ .m_flAffectedFraction
+- \\ .m_flMinBodyYaw
+- \\ .m_flMaxBodyYaw
+- \\ .m_flMinPitch
+- \\ .m_flMaxPitch
+- \\ .m_iAnimsetVersion
+- \ :m_nPoseParameters()
+- \ :m_bDormant()
+- \ :m_fFlags()
+- \ :m_vecVelocity()
+- \ :m_flVelocity()
+- \ :m_flSimulationTime()
+- \ :m_flOldSimulationTime()
+- \ :m_flLowerBodyYawTarget()
 
 Input:
 - IsKeyPressed(vKey)
