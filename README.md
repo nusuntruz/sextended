@@ -97,9 +97,9 @@ Entity:
 - Get(m_iIndex)
 - GetHandle(m_iHandle)
 - Find(m_hAddress) -- By Address
-\ :GetProp(typedef, m_hOffset, m_hPointer)
-\ :m_iHealth()
-\ :m_iTeamNum()
+- \ :GetProp(typedef, m_hOffset, m_hPointer)
+- \ :m_iHealth()
+- \ :m_iTeamNum()
 - \ :m_nPoseParameters()
 - \ :m_bDormant()
 - \ :m_fFlags()
