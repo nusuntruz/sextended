@@ -59,6 +59,14 @@ Engine:
 - InGame()
 - IsConnected()
 - GetScreenSize()
+- GetPlayerByUserId(m_iUserID)
+- GetViewAngles()
+- SetViewAngles(vec3_t_Angles)
+- Execute(client_cmd_execute_command)
+- IsPaused()
+- IsHLTV()
+- GetDemoPlaybackParameters()
+- GetScreenAspectRatio(viewportWidth, viewportHeight)
 - GetPlayerInfo(m_iIndex)
 - \ .m_uDataMap 
 - \ .m_iSteamID64 
@@ -73,14 +81,6 @@ Engine:
 - \ .m_bIsHLTV 
 - \ .m_uCustomFiles 
 - \ .m_uFilesDownloaded
-- GetPlayerByUserId(m_iUserID)
-- GetViewAngles()
-- SetViewAngles(vec3_t_Angles)
-- Execute(client_cmd_execute_command)
-- IsPaused()
-- IsHLTV()
-- GetDemoPlaybackParameters()
-- GetScreenAspectRatio(viewportWidth, viewportHeight)
 
 NetChannel:
 - m_bProcessingMessages
