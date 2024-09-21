@@ -70,7 +70,10 @@ while true do
     User.Cheat = 'primordial'
     break
 end
-local bIsffiCCompatible = ffi.C and User.Cheat ~= 'gamesense'
+
+if User.Cheat == "gamesense" then
+    error("Unsupported platform")
+end
 
 local WorldToScreen = function (...)
     --return render.world_to_screen(...)
@@ -597,7 +600,7 @@ local Utils = (function()
         return ffi.cast("unsigned int*", findsignaturefunc(module_dll, sequence)) + (offset or 0)
     end
 
-    if bIsffiCCompatible then
+    if ffi.C then
         ffi.cdef[[
             void* GetProcAddress(void* hModule, const char* lpProcName);
             void* GetModuleHandleA(const char* lpModuleName);
@@ -607,25 +610,8 @@ local Utils = (function()
         Signatures.pGetProcAddress = FindSignature("engine.dll", " FF 15 ? ? ? ? A3 ? ? ? ? EB 05") or error('[Signatures] Failed to init pGetProcAddress')
     end
     
-    local GetProcAddress
-    local GetModuleHandle
-    if User.Cheat == "gamesense" then
-        local proxyAddr = FindSignature('engine.dll', '51 C3')
-        local fnGetProcAddressAddr = ffi.cast('void*', Signatures.pGetProcAddress)
-        local fnGetProcAddressProxy = ffi.cast('uint32_t(__thiscall*)(void*, uint32_t, const char*)', proxyAddr)
-        GetProcAddress = function(moduleHandle, functionName)
-            return fnGetProcAddressProxy(fnGetProcAddressAddr, moduleHandle, functionName)
-        end
-        
-        local fnGetModuleHandleAddr = ffi.cast('void*', Signatures.pGetModuleHandle)
-        local fnGetModuleHandleProxy = ffi.cast('uint32_t(__thiscall*)(void*, const char*)', proxyAddr)
-        GetModuleHandle = function(moduleName)
-            return fnGetModuleHandleProxy(fnGetModuleHandleAddr, moduleName)
-        end
-    else
-        GetProcAddress = ffi.C and ffi.C.GetProcAddress or ffi.cast("uint32_t(__stdcall*)(uint32_t, const char*)", (ffi.cast("uint32_t**", ffi.cast("uint32_t", Signatures.pGetProcAddress) + 2)[0][0]) )
-        GetModuleHandle = ffi.C and ffi.C.GetModuleHandleA or ffi.cast("uint32_t(__stdcall*)(const char*)", (ffi.cast("uint32_t**", ffi.cast("uint32_t", Signatures.pGetModuleHandle) + 2)[0][0]) )    
-    end
+    local GetProcAddress = ffi.C and ffi.C.GetProcAddress or ffi.cast("uint32_t(__stdcall*)(uint32_t, const char*)", (ffi.cast("uint32_t**", ffi.cast("uint32_t", Signatures.pGetProcAddress) + 2)[0][0]) )
+    local GetModuleHandle = ffi.C and ffi.C.GetModuleHandleA or ffi.cast("uint32_t(__stdcall*)(const char*)", (ffi.cast("uint32_t**", ffi.cast("uint32_t", Signatures.pGetModuleHandle) + 2)[0][0]) )
 
     local ProcessBind = function(typedef, m_szModuleNameDll, m_szFunctionName)
         return ffi.cast(ffi.typeof(typedef), GetProcAddress(GetModuleHandle(m_szModuleNameDll), m_szFunctionName))
@@ -677,9 +663,8 @@ local Utils = (function()
     ]]
 
     --Signatures.m_fnConsoleColor = ffi.cast("console_color_print", VirtualFunction(CreateInterface("tier0.dll", "?ConColorMsg@@YAXABVColor@@PBDZZ")))
-    --Signatures.m_fnConsoleColor = ProcessBind("console_color_print", "tier0.dll", "?ConColorMsg@@YAXABVColor@@PBDZZ")
-    --local Print = function (...)
-        --[[
+    Signatures.m_fnConsoleColor = ProcessBind("console_color_print", "tier0.dll", "?ConColorMsg@@YAXABVColor@@PBDZZ")
+    local Print = function (...)
         local args = {...}
 
         local m_arrDrawColor = ffi.new("color_struct_t", {r = 255, g = 255, b = 255, a = 255})
@@ -691,9 +676,9 @@ local Utils = (function()
             end
         end
 
-        Signatures.m_fnConsoleColor(m_arrDrawColor, '\n')]]
-    --end
-    --print = Print
+        Signatures.m_fnConsoleColor(m_arrDrawColor, '\n')
+    end
+    print = Print
 
 
     Signatures.FindElement = ffi.cast("unsigned long(__thiscall*)(void*, const char*)", FindSignature("client.dll", "55 8B EC 53 8B 5D 08 56 57 8B F9 33 F6 39 77 28"))
@@ -745,7 +730,7 @@ local Utils = (function()
     end
 
     local MessageBox
-    if bIsffiCCompatible then
+    if ffi.C then
         ffi.cdef[[
             int MessageBoxA(void*, const char*, const char*, unsigned);
         ]]
@@ -793,75 +778,62 @@ local Clipboard = (function()
     }
 end)()
 
-local Hooks
-if User.Cheat == "gamesense" then
-    Hooks = { -- placebo cuz gamesense and idk how to bypass that
-        Create = function (vt)
-            return {
-                Hook = function (cast, func, method) end,
-                unHook = function (method) end,
-                unHookAll = function () end
-            }
+local Hooks = (function()
+    local VirtualProtect
+
+    if ffi.C then
+        ffi.cdef[[
+            int VirtualProtect(void* lpAddress, unsigned long dwSize, unsigned long flNewProtect, unsigned long* lpflOldProtect);
+        ]]
+        
+        VirtualProtect = function (lpAddress, dwSize, flNewProtect, lpflOldProtect)
+            return ffi.C.VirtualProtect(ffi.cast('void*', lpAddress), dwSize, flNewProtect, lpflOldProtect)
         end
-    }
-else
-    Hooks = (function()
-        local VirtualProtect
-    
-        if ffi.C then
-            ffi.cdef[[
-                int VirtualProtect(void* lpAddress, unsigned long dwSize, unsigned long flNewProtect, unsigned long* lpflOldProtect);
-            ]]
-            
-            VirtualProtect = function (lpAddress, dwSize, flNewProtect, lpflOldProtect)
-                return ffi.C.VirtualProtect(ffi.cast('void*', lpAddress), dwSize, flNewProtect, lpflOldProtect)
-            end
-        else
-            Signatures.VirtualProtect = Utils.ProcessBind("int(__stdcall*)(void* lpAddress, unsigned long dwSize, unsigned long flNewProtect, unsigned long* lpflOldProtect)", "kernel32.dll", "VirtualProtect")
-            VirtualProtect = function(lpAddress, dwSize, flNewProtect, lpflOldProtect)
-                return Signatures.VirtualProtect(ffi.cast("void*", lpAddress), dwSize, flNewProtect, lpflOldProtect)
+    else
+        Signatures.VirtualProtect = Utils.ProcessBind("int(__stdcall*)(void* lpAddress, unsigned long dwSize, unsigned long flNewProtect, unsigned long* lpflOldProtect)", "kernel32.dll", "VirtualProtect")
+        VirtualProtect = function(lpAddress, dwSize, flNewProtect, lpflOldProtect)
+            return Signatures.VirtualProtect(ffi.cast("void*", lpAddress), dwSize, flNewProtect, lpflOldProtect)
+        end
+    end
+
+    local hooks = {}
+    local Create = function(vt)
+        local cache = {
+            newHook = {},
+            orgFunc = {},
+            oldProt = ffi.new("unsigned long[1]"),
+            virtualTable = ffi.cast("intptr_t**", vt)[0]
+        }
+
+        cache.newHook.this = cache.virtualTable
+        cache.newHook.Hook = function(cast, func, method)
+            cache.orgFunc[method] = cache.virtualTable[method]
+            VirtualProtect(cache.virtualTable + method, 4, 0x4, cache.oldProt)
+
+            cache.virtualTable[method] = ffi.cast("intptr_t", ffi.cast(cast, func))
+            VirtualProtect(cache.virtualTable + method, 4, cache.oldProt[0], cache.oldProt)
+
+            return ffi.cast(cast, cache.orgFunc[method])
+        end
+        cache.newHook.unHook = function(method)
+            VirtualProtect(cache.virtualTable + method, 4, 0x4, cache.oldProt)
+            cache.virtualTable[method] = cache.orgFunc[method]
+
+            VirtualProtect(cache.virtualTable + method, 4, cache.oldProt[0], cache.oldProt)
+            cache.orgFunc[method] = nil
+        end
+        cache.newHook.unHookAll = function()
+            for method, func in pairs(cache.orgFunc) do
+                cache.newHook.unHookMethod(method)
             end
         end
-    
-        local hooks = {}
-        local Create = function(vt)
-            local cache = {
-                newHook = {},
-                orgFunc = {},
-                oldProt = ffi.new("unsigned long[1]"),
-                virtualTable = ffi.cast("intptr_t**", vt)[0]
-            }
-    
-            cache.newHook.this = cache.virtualTable
-            cache.newHook.Hook = function(cast, func, method)
-                cache.orgFunc[method] = cache.virtualTable[method]
-                VirtualProtect(cache.virtualTable + method, 4, 0x4, cache.oldProt)
-    
-                cache.virtualTable[method] = ffi.cast("intptr_t", ffi.cast(cast, func))
-                VirtualProtect(cache.virtualTable + method, 4, cache.oldProt[0], cache.oldProt)
-    
-                return ffi.cast(cast, cache.orgFunc[method])
-            end
-            cache.newHook.unHook = function(method)
-                VirtualProtect(cache.virtualTable + method, 4, 0x4, cache.oldProt)
-                cache.virtualTable[method] = cache.orgFunc[method]
-    
-                VirtualProtect(cache.virtualTable + method, 4, cache.oldProt[0], cache.oldProt)
-                cache.orgFunc[method] = nil
-            end
-            cache.newHook.unHookAll = function()
-                for method, func in pairs(cache.orgFunc) do
-                    cache.newHook.unHookMethod(method)
-                end
-            end
-    
-            table.insert(hooks, cache.newHook.unHookAll)
-            return cache.newHook
-        end
-    
-        return {Create = Create}
-    end)()
-end
+
+        table.insert(hooks, cache.newHook.unHookAll)
+        return cache.newHook
+    end
+
+    return {Create = Create}
+end)()
 
 local ClientState = (function()
     ffi.cdef[[
