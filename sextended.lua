@@ -19,8 +19,65 @@ ffi.cdef[[
 local bUnloaded = false
 local Signatures = {}
 
+local User = {}
+while true do
+    if not _G then
+        if not quick_maths then
+            if not info then
+                if not info.fatality then
+                    User.Cheat = 'evolve'
+                    break
+                end
+            end
+            User.Cheat = 'fatality'
+            break
+        end
+        User.Cheat = 'rifk7'
+        break
+    end
+    if MatSystem then
+        User.Cheat = 'spirthack'
+        break
+    end
+    if file then
+        User.Cheat = 'legendware'
+        break
+    end
+    if GameEventManager then
+        User.Cheat = 'memesense'
+        break
+    end
+    if penetration then
+        User.Cheat = 'pandora'
+        break
+    end
+    if math_utils then
+        User.Cheat = 'legion'
+        break
+    end
+    if plist then
+        User.Cheat = 'gamesense'
+        break
+    end
+    if network then
+        User.Cheat = 'neverlose'
+        break
+    end
+    if renderer and renderer.setup_texture then
+        User.Cheat = 'nixware'
+        break
+    end
+    User.Cheat = 'primordial'
+    break
+end
+local bIsffiCCompatible = ffi.C and User.Cheat ~= 'gamesense'
+
 local WorldToScreen = function (...)
-    return render.world_to_screen(...)
+    --return render.world_to_screen(...)
+    return {
+        x = 0,
+        y = 0
+    }
 end
 
 (function () -- math extended
@@ -437,17 +494,110 @@ local HSV, HEX, Color = (function ()
     return HSV, HEX, Color
 end)()
 
+--[[
 local UnloadFunction = function (func)
     bUnloaded = true
     client.add_callback("unload", func)
-end
+end]]
 
+local OriginalUtils = Utils -- for cheats that uses uppercase Utils
 local Utils = (function()
-    local FindSignature = function(module_dll, sequence, offset)
-        return utils.find_signature(module_dll, sequence) + (offset or 0)
+    local findsignaturefunc
+    local createinterfacefunc
+    local UnloadFunction
+
+    if User.Cheat == "evolve" then
+        findsignaturefunc = utils.find_pattern
+        createinterfacefunc = utils.find_interface
+        UnloadFunction = function(fn)
+
+        end
+    elseif User.Cheat == "fatality" then
+        findsignaturefunc = utils.find_pattern
+        createinterfacefunc = utils.find_interface
+        UnloadFunction = function(fn)
+
+        end
+    elseif User.Cheat == "primordial" then
+        findsignaturefunc = memory.find_pattern
+        createinterfacefunc = memory.create_interface
+        UnloadFunction = function(fn)
+            return callbacks.add(e_callbacks.SHUTDOWN, fn)
+        end
+    elseif User.Cheat == "memesense" then
+        findsignaturefunc = OriginalUtils.PatternScan
+        createinterfacefunc = OriginalUtils.CreateInterface
+        UnloadFunction = function(fn)
+            return Cheat.RegisterCallback('destroy', fn)
+        end
+    elseif User.Cheat == "legendware" then
+        findsignaturefunc = utils.find_signature
+        createinterfacefunc = utils.create_interface
+        UnloadFunction = function(fn)
+            return client.add_callback('unload', fn)
+        end
+    elseif User.Cheat == "pandora" then
+        findsignaturefunc = client.find_sig
+        createinterfacefunc = client.create_interface
+        UnloadFunction = function(fn)
+
+        end
+    elseif User.Cheat == "legion" then
+        findsignaturefunc = memory.find_pattern
+        createinterfacefunc = memory.create_interface
+        UnloadFunction = function(fn)
+            return client.add_callback('on_unload', fn)
+        end
+    elseif User.Cheat == "gamesense" then
+        findsignaturefunc = function(moduleName, pattern)
+            local gsPattern = ''
+            for token in pattern:gmatch('%S+') do
+              gsPattern = gsPattern .. (token == '?' and '\xCC' or _G.string.char(tonumber(token, 16)))
+            end
+            return client.find_signature(moduleName, gsPattern)
+        end
+        createinterfacefunc = client.create_interface
+        UnloadFunction = function(fn)
+            return client.set_event_callback('shutdown', fn)
+        end
+    elseif User.Cheat == "neverlose" then
+        findsignaturefunc = utils.opcode_scan
+        createinterfacefunc = utils.create_interface
+        UnloadFunction = function(fn)
+
+        end
+    elseif User.Cheat == "nixware" then
+        findsignaturefunc = client.find_pattern
+        createinterfacefunc = se.create_interface
+        UnloadFunction = function(fn)
+            return client.register_callback("unload", fn)
+        end
+    elseif User.Cheat == "rifk7" then
+        findsignaturefunc = function(module_name, pattern)
+            local stupid = cast("uint32_t*", engine.signature(module_name, pattern))
+            assert(tonumber(stupid) ~= 0)
+            return stupid[0]
+        end
+        createinterfacefunc = function(module_name, interface_name)
+            interface_name = string.gsub(interface_name, "%d+", "")
+            return general.create_interface(module_name, interface_name)
+        end
+        UnloadFunction = function(fn)
+
+        end
+    elseif User.Cheat == "spirthack" then
+        findsignaturefunc = OriginalUtils.PatternScan
+        createinterfacefunc = OriginalUtils.CreateInterface
+        UnloadFunction = function(fn)
+
+        end
     end
 
-    if ffi.C then
+    local FindSignature = function(module_dll, sequence, offset)
+        return ffi.cast("unsigned int*", findsignaturefunc(module_dll, sequence)) + (offset or 0)
+    end
+
+    if bIsffiCCompatible then
         ffi.cdef[[
             void* GetProcAddress(void* hModule, const char* lpProcName);
             void* GetModuleHandleA(const char* lpModuleName);
@@ -457,12 +607,31 @@ local Utils = (function()
         Signatures.pGetProcAddress = FindSignature("engine.dll", " FF 15 ? ? ? ? A3 ? ? ? ? EB 05") or error('[Signatures] Failed to init pGetProcAddress')
     end
     
-    local GetProcAddress = ffi.C and ffi.C.GetProcAddress or ffi.cast("uint32_t(__stdcall*)(uint32_t, const char*)", (ffi.cast("uint32_t**", ffi.cast("uint32_t", Signatures.pGetProcAddress) + 2)[0][0]) )
-    local GetModuleHandle = ffi.C and ffi.C.GetModuleHandleA or ffi.cast("uint32_t(__stdcall*)(const char*)", (ffi.cast("uint32_t**", ffi.cast("uint32_t", Signatures.pGetModuleHandle) + 2)[0][0]) )
+    local GetProcAddress
+    local GetModuleHandle
+    if User.Cheat == "gamesense" then
+        local proxyAddr = FindSignature('engine.dll', '51 C3')
+        local fnGetProcAddressAddr = ffi.cast('void*', Signatures.pGetProcAddress)
+        local fnGetProcAddressProxy = ffi.cast('uint32_t(__thiscall*)(void*, uint32_t, const char*)', proxyAddr)
+        GetProcAddress = function(moduleHandle, functionName)
+            return fnGetProcAddressProxy(fnGetProcAddressAddr, moduleHandle, functionName)
+        end
+        
+        local fnGetModuleHandleAddr = ffi.cast('void*', Signatures.pGetModuleHandle)
+        local fnGetModuleHandleProxy = ffi.cast('uint32_t(__thiscall*)(void*, const char*)', proxyAddr)
+        GetModuleHandle = function(moduleName)
+            return fnGetModuleHandleProxy(fnGetModuleHandleAddr, moduleName)
+        end
+    else
+        GetProcAddress = ffi.C and ffi.C.GetProcAddress or ffi.cast("uint32_t(__stdcall*)(uint32_t, const char*)", (ffi.cast("uint32_t**", ffi.cast("uint32_t", Signatures.pGetProcAddress) + 2)[0][0]) )
+        GetModuleHandle = ffi.C and ffi.C.GetModuleHandleA or ffi.cast("uint32_t(__stdcall*)(const char*)", (ffi.cast("uint32_t**", ffi.cast("uint32_t", Signatures.pGetModuleHandle) + 2)[0][0]) )    
+    end
+
     local ProcessBind = function(typedef, m_szModuleNameDll, m_szFunctionName)
         return ffi.cast(ffi.typeof(typedef), GetProcAddress(GetModuleHandle(m_szModuleNameDll), m_szFunctionName))
     end
 
+    --[[
     ffi.cdef[[
         typedef void* (*get_interface_fn)();
 
@@ -474,8 +643,10 @@ local Utils = (function()
     ]]
 
     local CreateInterface = function(module_dll, interface_name)
+        return createinterfacefunc(module_dll, interface_name)
+        --[[ -- can be used on some cheats
         if ffi.C then
-            return utils.create_interface(module_dll, interface_name)
+            return createinterfacefunc(module_dll, interface_name)
         else
             local create_interface_addr = ProcessBind("int", module_dll, "CreateInterface")
             local interface = ffi.cast("interface***", create_interface_addr + ffi.cast("int*", create_interface_addr + 5)[0] + 15)[0][0]
@@ -487,7 +658,11 @@ local Utils = (function()
             
                 interface = ffi.cast("interface*", interface.next)
             end
-        end
+        end]]
+    end
+
+    local VirtualFunction = function(vTable, m_iIndex, typedef)
+        return ffi.cast((typedef or "uintptr_t**"), vTable)[0][m_iIndex]
     end
 
     ffi.cdef[[
@@ -501,8 +676,10 @@ local Utils = (function()
         typedef void (*console_color_print)(const color_struct_t&, const char*, ...);
     ]]
 
-    Signatures.m_fnConsoleColor = ProcessBind("console_color_print", "tier0.dll", "?ConColorMsg@@YAXABVColor@@PBDZZ")
-    local Print = function (...)
+    --Signatures.m_fnConsoleColor = ffi.cast("console_color_print", VirtualFunction(CreateInterface("tier0.dll", "?ConColorMsg@@YAXABVColor@@PBDZZ")))
+    --Signatures.m_fnConsoleColor = ProcessBind("console_color_print", "tier0.dll", "?ConColorMsg@@YAXABVColor@@PBDZZ")
+    --local Print = function (...)
+        --[[
         local args = {...}
 
         local m_arrDrawColor = ffi.new("color_struct_t", {r = 255, g = 255, b = 255, a = 255})
@@ -514,9 +691,10 @@ local Utils = (function()
             end
         end
 
-        Signatures.m_fnConsoleColor(m_arrDrawColor, '\n')
-    end
-    print = Print
+        Signatures.m_fnConsoleColor(m_arrDrawColor, '\n')]]
+    --end
+    --print = Print
+
 
     Signatures.FindElement = ffi.cast("unsigned long(__thiscall*)(void*, const char*)", FindSignature("client.dll", "55 8B EC 53 8B 5D 08 56 57 8B F9 33 F6 39 77 28"))
     Signatures.CHudChat = Signatures.FindElement(ffi.cast("unsigned long**", ffi.cast("uintptr_t", FindSignature("client.dll", "B9 ? ? ? ? E8 ? ? ? ? 8B 5D 08")) + 1)[0], "CHudChat")
@@ -530,10 +708,17 @@ local Utils = (function()
         return ret
     end
 
+
     local Error = function (m_szFunction, m_szError, m_iLevel)
         return error('[S-API Critical](' .. m_szFunction .. ') ' .. m_szError, (m_iLevel ~= nil and type(m_iLevel) == "number" and m_iLevel or nil))
     end
 
+    local __thiscall = function(func, this)
+        return function(...)
+          return func(this, ...)
+        end
+    end
+    
     local VTableBind = function(interface, m_iIndex, typedef)
         if type(m_iIndex) == "string" and type(typedef) == "number" then
             local aux = m_iIndex
@@ -543,6 +728,12 @@ local Utils = (function()
         end
         if type(m_iIndex) ~= "number" then return Error("VTableBind", "m_iIndex not a number") end
         if type(typedef) ~= "string" then return Error("VTableBind", "m_iIndex not a number") end
+
+        if User.Cheat == "gamesense" then
+            local addr = ffi.cast('void***', interface) or error(interface .. ' is nil.')
+            return __thiscall(ffi.cast(typedef, addr[0][m_iIndex]), addr)
+        end
+
         local iface = ffi.cast("void***", interface)
         local success, typeof = pcall(ffi.typeof, typedef)
         if not success then error(typeof, 2) end
@@ -554,17 +745,13 @@ local Utils = (function()
     end
 
     local MessageBox
-    if ffi.C then
+    if bIsffiCCompatible then
         ffi.cdef[[
             int MessageBoxA(void*, const char*, const char*, unsigned);
         ]]
         MessageBox = function(title, text)
             ffi.C.MessageBoxA(0, text, title, 0)
         end
-    end
-
-    local VirtualFunction = function(vTable, m_iIndex, typedef)
-        return ffi.cast((typedef or "uintptr_t**"), vTable)[0][m_iIndex]
     end
 
     return {
@@ -576,9 +763,11 @@ local Utils = (function()
         SafeError = SafeError,
         VTableBind = VTableBind,
         MessageBox = MessageBox,
-        VirtualFunction = VirtualFunction
+        VirtualFunction = VirtualFunction,
+        UnloadFunction = UnloadFunction
     }
 end)()
+OriginalUtils = nil -- release memory
 
 local Clipboard = (function()
     Signatures.Interface = Utils.CreateInterface('vgui2.dll', 'VGUI_System010')
@@ -604,62 +793,75 @@ local Clipboard = (function()
     }
 end)()
 
-local Hooks = (function()
-    local VirtualProtect
-
-    if ffi.C then
-        ffi.cdef[[
-            int VirtualProtect(void* lpAddress, unsigned long dwSize, unsigned long flNewProtect, unsigned long* lpflOldProtect);
-        ]]
-        
-        VirtualProtect = function (lpAddress, dwSize, flNewProtect, lpflOldProtect)
-            return ffi.C.VirtualProtect(ffi.cast('void*', lpAddress), dwSize, flNewProtect, lpflOldProtect)
+local Hooks
+if User.Cheat == "gamesense" then
+    Hooks = { -- placebo cuz gamesense and idk how to bypass that
+        Create = function (vt)
+            return {
+                Hook = function (cast, func, method) end,
+                unHook = function (method) end,
+                unHookAll = function () end
+            }
         end
-    else
-        Signatures.VirtualProtect = Utils.ProcessBind("int(__stdcall*)(void* lpAddress, unsigned long dwSize, unsigned long flNewProtect, unsigned long* lpflOldProtect)", "kernel32.dll", "VirtualProtect")
-        VirtualProtect = function(lpAddress, dwSize, flNewProtect, lpflOldProtect)
-            return Signatures.VirtualProtect(ffi.cast("void*", lpAddress), dwSize, flNewProtect, lpflOldProtect)
-        end
-    end
-
-    local hooks = {}
-    local Create = function(vt)
-        local cache = {
-            newHook = {},
-            orgFunc = {},
-            oldProt = ffi.new("unsigned long[1]"),
-            virtualTable = ffi.cast("intptr_t**", vt)[0]
-        }
-
-        cache.newHook.this = cache.virtualTable
-        cache.newHook.Hook = function(cast, func, method)
-            cache.orgFunc[method] = cache.virtualTable[method]
-            VirtualProtect(cache.virtualTable + method, 4, 0x4, cache.oldProt)
-
-            cache.virtualTable[method] = ffi.cast("intptr_t", ffi.cast(cast, func))
-            VirtualProtect(cache.virtualTable + method, 4, cache.oldProt[0], cache.oldProt)
-
-            return ffi.cast(cast, cache.orgFunc[method])
-        end
-        cache.newHook.unHook = function(method)
-            VirtualProtect(cache.virtualTable + method, 4, 0x4, cache.oldProt)
-            cache.virtualTable[method] = cache.orgFunc[method]
-
-            VirtualProtect(cache.virtualTable + method, 4, cache.oldProt[0], cache.oldProt)
-            cache.orgFunc[method] = nil
-        end
-        cache.newHook.unHookAll = function()
-            for method, func in pairs(cache.orgFunc) do
-                cache.newHook.unHookMethod(method)
+    }
+else
+    Hooks = (function()
+        local VirtualProtect
+    
+        if ffi.C then
+            ffi.cdef[[
+                int VirtualProtect(void* lpAddress, unsigned long dwSize, unsigned long flNewProtect, unsigned long* lpflOldProtect);
+            ]]
+            
+            VirtualProtect = function (lpAddress, dwSize, flNewProtect, lpflOldProtect)
+                return ffi.C.VirtualProtect(ffi.cast('void*', lpAddress), dwSize, flNewProtect, lpflOldProtect)
+            end
+        else
+            Signatures.VirtualProtect = Utils.ProcessBind("int(__stdcall*)(void* lpAddress, unsigned long dwSize, unsigned long flNewProtect, unsigned long* lpflOldProtect)", "kernel32.dll", "VirtualProtect")
+            VirtualProtect = function(lpAddress, dwSize, flNewProtect, lpflOldProtect)
+                return Signatures.VirtualProtect(ffi.cast("void*", lpAddress), dwSize, flNewProtect, lpflOldProtect)
             end
         end
-
-        table.insert(hooks, cache.newHook.unHookAll)
-        return cache.newHook
-    end
-
-    return {Create = Create}
-end)()
+    
+        local hooks = {}
+        local Create = function(vt)
+            local cache = {
+                newHook = {},
+                orgFunc = {},
+                oldProt = ffi.new("unsigned long[1]"),
+                virtualTable = ffi.cast("intptr_t**", vt)[0]
+            }
+    
+            cache.newHook.this = cache.virtualTable
+            cache.newHook.Hook = function(cast, func, method)
+                cache.orgFunc[method] = cache.virtualTable[method]
+                VirtualProtect(cache.virtualTable + method, 4, 0x4, cache.oldProt)
+    
+                cache.virtualTable[method] = ffi.cast("intptr_t", ffi.cast(cast, func))
+                VirtualProtect(cache.virtualTable + method, 4, cache.oldProt[0], cache.oldProt)
+    
+                return ffi.cast(cast, cache.orgFunc[method])
+            end
+            cache.newHook.unHook = function(method)
+                VirtualProtect(cache.virtualTable + method, 4, 0x4, cache.oldProt)
+                cache.virtualTable[method] = cache.orgFunc[method]
+    
+                VirtualProtect(cache.virtualTable + method, 4, cache.oldProt[0], cache.oldProt)
+                cache.orgFunc[method] = nil
+            end
+            cache.newHook.unHookAll = function()
+                for method, func in pairs(cache.orgFunc) do
+                    cache.newHook.unHookMethod(method)
+                end
+            end
+    
+            table.insert(hooks, cache.newHook.unHookAll)
+            return cache.newHook
+        end
+    
+        return {Create = Create}
+    end)()
+end
 
 local ClientState = (function()
     ffi.cdef[[
@@ -1498,6 +1700,10 @@ local Callbacks = (function ()
         end
 
         oPaintTraverse = Hooks.Create(Signatures.VGUI_Panel009).Hook("void(__thiscall*)(void*, unsigned int, bool, bool)", hkPaintTraverse, 41)
+
+        Utils.UnloadFunction(function ()
+            oPaintTraverse.unHookAll()
+        end)
     end)()
 
     local UpdateClientSideAnimationHook = function () -- UpdateClientSideAnimations
@@ -1532,6 +1738,10 @@ local Callbacks = (function ()
 
             oUpdateClientSideAnimation = Hooks.Create(ffi.cast('void*', m_local.m_hAddress)).Hook("void(__fastcall*)(void*, void*)", hkUpdateClientSideAnimation, 224)
         end
+
+        Utils.UnloadFunction(function ()
+            oUpdateClientSideAnimation.unHookAll()
+        end)
         
         return nHookFunction
     end
@@ -1578,6 +1788,10 @@ local Callbacks = (function ()
         end
 
         oCreateMove = Hooks.Create(Signatures.IClientModeH).Hook("bool(__stdcall*)(float, CUserCmd*)", hkCreateMove, 24)
+
+        Utils.UnloadFunction(function ()
+            oCreateMove.unHookAll()
+        end)
     end)()
 
     -- doesn t load if i just load this without the variable in front
@@ -1600,6 +1814,10 @@ local Callbacks = (function ()
         end
 
         oFrameStageNotify = Hooks.Create(Signatures.VClient018).Hook("void(__stdcall*)(int)", hkFrameStageNotify, 37)
+
+        Utils.UnloadFunction(function ()
+            oFrameStageNotify.unHookAll()
+        end)
     end)()
     fsn = nil -- release memory
 
@@ -2151,5 +2369,6 @@ return {
     Callbacks = Callbacks,
     Render = Render,
     EFontFlags = EFontFlags,
-    RoundingFlags = RoundingFlags
+    RoundingFlags = RoundingFlags,
+    User = User
 }
